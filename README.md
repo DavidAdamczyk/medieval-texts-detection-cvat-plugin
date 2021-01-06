@@ -1,1 +1,1 @@
-# medieval-texts-detection-cvat-plugin
+# cvat_plugin

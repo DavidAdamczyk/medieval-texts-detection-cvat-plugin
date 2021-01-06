@@ -1,0 +1,48 @@
+metadata:
+  name: 01_pismena2
+  namespace: cvat
+  annotations:
+    name: 01_pismena2
+    type: detector
+    framework: pytorch
+    spec: |
+      [
+        { "id": 1, "name": "character" }
+      ]
+
+spec:
+  description: Pismena
+  runtime: 'python:3.7'
+  handler: main:handler
+  eventTimeout: 220s
+
+  build:
+    image: cvat/pismena
+    baseImage: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-runtime
+
+    directives:
+      preCopy:
+        - kind: WORKDIR
+          value: /opt/nuclio
+        - kind: RUN
+          value: apt update && apt install -y python3-dev gcc build-essential ffmpeg libsm6 libxext6
+        - kind: RUN
+          value: pip install pillow pyyaml
+        - kind: RUN
+          value: pip install fastai==1.0.59
+        - kind: RUN
+          value: pip install opencv-python opencv-contrib-python
+
+  triggers:
+    myHttpTrigger:
+      maxWorkers: 2
+      kind: 'http'
+      workerAvailabilityTimeoutMilliseconds: 800000
+      attributes:
+        maxRequestBodySize: 33554432 # 32MB
+
+  platform:
+    attributes:
+      restartPolicy:
+        name: always
+        maximumRetryCount: 3
